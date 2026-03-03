@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "eid-agent"
+name = "pythonbeid-server"
 version = "1.0.0"
 description = "Localhost API agent for Belgian eID cards using pythonbeid."
 readme = "README.md"

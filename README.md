@@ -13,6 +13,10 @@ Agent local Python pour lire une carte eID belge via `pythonbeid` et exposer une
 
 ## Installation
 
+Package PyPI: `pythonbeid-server`  
+Module Python importable: `eid_agent`  
+Commande CLI installée: `eid-agent`
+
 ```bash
 pip install -e .
 ```
@@ -181,6 +185,36 @@ pytest -q
 ```
 
 Les tests API n’utilisent pas de matériel eID et injectent un backend simulé.
+
+## Publication PyPI (GitHub Actions)
+
+Le workflow CI/CD est fourni ici:
+
+- `.github/workflows/publish-pypi.yml`
+
+Il publie automatiquement sur PyPI avec Trusted Publishing (OIDC) quand un tag `v*` est poussé.
+
+### Configuration initiale (une seule fois)
+
+1. Sur PyPI, créer un Trusted Publisher pour ce projet avec:
+   - Owner GitHub
+   - Repo GitHub
+   - Workflow: `publish-pypi.yml`
+   - Environment: `pypi`
+2. Sur GitHub, créer l'environnement `pypi` (Settings > Environments).
+
+### Release
+
+1. Mettre à jour la version dans `pyproject.toml` (ex: `1.0.1`).
+2. Commit/push.
+3. Créer et pousser le tag correspondant:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+Le workflow vérifie que le tag correspond à la version (`v<version>`), build le package, puis publie sur PyPI.
 
 ## Page web d'exemple
 
