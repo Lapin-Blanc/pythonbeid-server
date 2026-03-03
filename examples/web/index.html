@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eID Agent Demo</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1a1f2b;
+      --muted: #5a6477;
+      --accent: #0073e6;
+      --border: #d8deea;
+      --error: #b31c2e;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8fbff 0%, #eef3fb 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(18, 35, 67, 0.08);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.35rem;
+    }
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .photo-wrap {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: #fafcff;
+    }
+    .photo-wrap img {
+      width: 110px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .photo-meta {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .primary {
+      color: #fff;
+      background: var(--accent);
+    }
+    .secondary {
+      color: #1f2937;
+      background: #e8edf6;
+    }
+    #status {
+      margin-top: 14px;
+      min-height: 22px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    #status.ok { color: var(--ok); }
+    #status.error { color: var(--error); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>D&eacute;mo formulaire eID</h1>
+    <p>Ce formulaire est pr&eacute;-rempli via l'agent local sur <code>127.0.0.1</code>.</p>
+
+    <div class="grid">
+      <div class="full">
+        <label for="agentBaseUrl">URL de l'agent</label>
+        <input id="agentBaseUrl" type="text" value="http://127.0.0.1:8765" />
+      </div>
+      <div>
+        <label for="first_names">Pr&eacute;noms complets</label>
+        <input id="first_names" type="text" />
+      </div>
+      <div>
+        <label for="first_name">Pr&eacute;nom</label>
+        <input id="first_name" type="text" />
+      </div>
+      <div>
+        <label for="last_name">Nom</label>
+        <input id="last_name" type="text" />
+      </div>
+      <div>
+        <label for="birth_date">Date de naissance</label>
+        <input id="birth_date" type="date" />
+      </div>
+      <div>
+        <label for="birth_place">Lieu de naissance</label>
+        <input id="birth_place" type="text" />
+      </div>
+      <div>
+        <label for="national_number">NISS</label>
+        <input id="national_number" type="text" />
+      </div>
+      <div>
+        <label for="nationality">Nationalit&eacute;</label>
+        <input id="nationality" type="text" />
+      </div>
+      <div>
+        <label for="sex">Sexe</label>
+        <input id="sex" type="text" />
+      </div>
+      <div>
+        <label for="card_number">Num&eacute;ro de carte</label>
+        <input id="card_number" type="text" />
+      </div>
+      <div>
+        <label for="issuing_municipality">Commune d'&eacute;mission</label>
+        <input id="issuing_municipality" type="text" />
+      </div>
+      <div>
+        <label for="validity_start">Valide depuis</label>
+        <input id="validity_start" type="date" />
+      </div>
+      <div>
+        <label for="validity_end">Valide jusqu'au</label>
+        <input id="validity_end" type="date" />
+      </div>
+      <div class="full">
+        <label for="address_street">Rue et num&eacute;ro</label>
+        <input id="address_street" type="text" />
+      </div>
+      <div>
+        <label for="address_zip">Code postal</label>
+        <input id="address_zip" type="text" />
+      </div>
+      <div>
+        <label for="address_city">Ville</label>
+        <input id="address_city" type="text" />
+      </div>
+    </div>
+
+    <div class="photo-wrap">
+      <img id="photo" alt="Photo eID" />
+      <div class="photo-meta" id="photoMeta">Photo non charg&eacute;e.</div>
+    </div>
+
+    <div class="actions">
+      <button id="fillBtn" class="primary" type="button">Lire eID et remplir</button>
+      <button id="clearBtn" class="secondary" type="button">Vider</button>
+    </div>
+    <div id="status"></div>
+  </main>
+
+  <script>
+    const fields = [
+      "first_names",
+      "first_name",
+      "last_name",
+      "birth_date",
+      "birth_place",
+      "national_number",
+      "nationality",
+      "sex",
+      "card_number",
+      "issuing_municipality",
+      "validity_start",
+      "validity_end",
+      "address_street",
+      "address_zip",
+      "address_city"
+    ];
+
+    function setStatus(message, mode) {
+      const node = document.getElementById("status");
+      node.textContent = message;
+      node.className = mode || "";
+    }
+
+    function fillForm(data) {
+      for (const key of fields) {
+        const input = document.getElementById(key);
+        if (!input) continue;
+        input.value = data[key] || "";
+      }
+
+      const photo = document.getElementById("photo");
+      const photoMeta = document.getElementById("photoMeta");
+      if (data.photo_base64) {
+        const mime = data.photo_mime || "image/jpeg";
+        photo.src = "data:" + mime + ";base64," + data.photo_base64;
+        photoMeta.textContent = "Photo charg\u00E9e (" + mime + ").";
+      } else {
+        photo.removeAttribute("src");
+        photoMeta.textContent = "Photo non charg\u00E9e.";
+      }
+    }
+
+    async function requestJson(url, options) {
+      const response = await fetch(url, options);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.ok === false) {
+        const code = payload.error && payload.error.code ? payload.error.code : "HTTP_" + response.status;
+        const message = payload.error && payload.error.message ? payload.error.message : "Request failed";
+        throw new Error(code + ": " + message);
+      }
+      return payload;
+    }
+
+    async function runRead() {
+      const baseUrl = document.getElementById("agentBaseUrl").value.trim().replace(/\/$/, "");
+      if (!baseUrl) {
+        setStatus("URL agent vide.", "error");
+        return;
+      }
+
+      setStatus("Lecture en cours...", "");
+      const fillBtn = document.getElementById("fillBtn");
+      fillBtn.disabled = true;
+
+      try {
+        const session = await requestJson(baseUrl + "/v1/session", { method: "POST" });
+        const token = session.token;
+
+        const readPayload = await requestJson(baseUrl + "/v1/read", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            include_photo: true,
+            fields: fields
+          })
+        });
+
+        fillForm(readPayload.data || {});
+        setStatus("Formulaire rempli.", "ok");
+
+        await fetch(baseUrl + "/v1/logout", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token }
+        }).catch(() => {});
+      } catch (err) {
+        const message = err && err.message ? err.message : "Erreur inconnue";
+        if (message.includes("Failed to fetch")) {
+          setStatus("\u00C9chec r\u00E9seau/CORS. V\u00E9rifiez EID_AGENT_ALLOWED_ORIGINS et que l'agent tourne.", "error");
+        } else {
+          setStatus(message, "error");
+        }
+      } finally {
+        fillBtn.disabled = false;
+      }
+    }
+
+    document.getElementById("fillBtn").addEventListener("click", runRead);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      fillForm({});
+      setStatus("Formulaire vide.", "");
+    });
+  </script>
+</body>
+</html>

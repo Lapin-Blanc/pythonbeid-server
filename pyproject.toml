@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eid-agent"
+version = "1.0.0"
+description = "Localhost API agent for Belgian eID cards using pythonbeid."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.110,<1",
+  "uvicorn[standard]>=0.27,<1",
+  "pythonbeid",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "httpx>=0.27",
+]
+
+[project.scripts]
+eid-agent = "eid_agent.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["eid_agent*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
