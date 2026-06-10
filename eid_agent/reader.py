@@ -215,7 +215,7 @@ class PythonBeIDBackend:
             try:
                 with self._open_reader() as reader:
                     has_card = self._detect_card_presence(reader)
-            except Exception as exc:  # pragma: no cover - hardware-dependent branch
+            except Exception as exc:
                 translated = self._translate_exception(exc)
                 if translated.code == "NO_CARD":
                     has_card = False
@@ -223,11 +223,14 @@ class PythonBeIDBackend:
                     has_reader = False
                     readers = []
                 else:
+                    # Communication errors (e.g. unresponsive card) must not
+                    # turn a diagnostic endpoint into a 500: report the card
+                    # as absent and keep the details in the logs.
+                    has_card = False
                     if logger.isEnabledFor(logging.DEBUG):
-                        logger.exception("Unable to inspect reader/card status.")
+                        logger.exception("Unable to inspect card status.")
                     else:
-                        logger.error("Unable to inspect reader/card status: %s", exc)
-                    raise translated from exc
+                        logger.warning("Unable to inspect card status: %s", exc)
 
         return {
             "has_reader": has_reader,
@@ -252,7 +255,20 @@ class PythonBeIDBackend:
                 continue
             if isinstance(value, (list, tuple)):
                 return [str(item) for item in value]
-        return []
+        return self._pcsc_list_readers()
+
+    @staticmethod
+    def _pcsc_list_readers() -> list[str]:
+        # Fallback for pythonbeid < 0.3.0, which has no list_readers API.
+        # pyscard is a hard dependency of pythonbeid, so it is available here.
+        try:
+            from smartcard.System import readers as pcsc_readers
+        except Exception:
+            return []
+        try:
+            return [str(item) for item in pcsc_readers()]
+        except Exception:
+            return []
 
     def _detect_card_presence(self, reader: Any) -> bool:
         for attr in ("has_card", "card_present", "is_card_present", "is_card_inserted"):
@@ -264,7 +280,10 @@ class PythonBeIDBackend:
                     continue
             if isinstance(value, bool):
                 return value
-        return False
+        # No introspection attribute available: pythonbeid's CardReader raises
+        # NoCardError at construction when no card is present, so an open
+        # reader implies a card.
+        return True
 
     def read(self, include_photo: bool = False) -> dict[str, Any]:
         self._ensure_loaded()

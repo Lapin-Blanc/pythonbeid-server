@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from eid_agent import __version__
 from eid_agent.app import create_app
 from eid_agent.config import Settings
 from eid_agent.errors import AgentError
@@ -75,7 +76,7 @@ def test_healthcheck() -> None:
     payload = response.json()
     assert payload["ok"] is True
     assert payload["service"] == "eid-agent"
-    assert payload["version"] == "1.0.0"
+    assert payload["version"] == __version__
 
 
 def test_read_requires_token() -> None:
