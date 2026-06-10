@@ -26,6 +26,9 @@ ENV/
 # Packaging / build
 build/
 dist/
+packaging/output/
+packaging/eid-agent.ico
+*.spec.bak
 *.egg-info/
 .eggs/
 *.egg
