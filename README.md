@@ -178,6 +178,59 @@ curl -X POST http://127.0.0.1:8765/v1/read ^
 - Aucune donnée personnelle eID (nom, adresse, NISS, photo) n’est loggée.
 - Logs techniques: démarrage/arrêt, config réseau, erreurs techniques.
 
+## Application résidente Windows (zone de notification)
+
+L'agent peut tourner en tâche de fond avec une icône dans la zone de notification.
+
+Installation des dépendances et lancement depuis les sources:
+
+```bash
+pip install -e ".[tray]"
+eid-agent-tray
+```
+
+Menu de l'icône:
+
+- Vérifier lecteur / carte (notification avec l'état)
+- Ouvrir le health check dans le navigateur
+- Ouvrir le dossier de configuration
+- Quitter
+
+Particularités:
+
+- Une seule instance: si le port est déjà occupé, un message d'erreur s'affiche et
+  l'application se ferme.
+- Logs fichier rotatifs: `%LOCALAPPDATA%\eid-agent\logs\eid-agent.log`
+- Configuration persistante: créer un fichier `.env` dans `%LOCALAPPDATA%\eid-agent\`
+  (mêmes variables `EID_AGENT_*` que ci-dessus), par exemple:
+
+```text
+EID_AGENT_ALLOWED_ORIGINS=https://school.example
+EID_AGENT_PORT=8765
+```
+
+## Construire l'exécutable et l'installeur Windows
+
+Prérequis: [Inno Setup 6](https://jrsoftware.org/isinfo.php)
+(`winget install JRSoftware.InnoSetup`).
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\build.ps1
+```
+
+Le script:
+
+1. installe les dépendances de build (`.[tray,build]`, PyInstaller),
+2. génère l'icône (`packaging\make_icon.py`),
+3. construit l'exécutable sans console `dist\eid-agent-tray\eid-agent-tray.exe`,
+4. compile l'installeur `packaging\output\eid-agent-setup-<version>.exe`.
+
+Pour construire uniquement l'exécutable: `packaging\build.ps1 -SkipInstaller`.
+
+L'installeur (français/anglais) installe l'application, crée un raccourci dans le menu
+Démarrer et propose une option "Lancer eID Agent à l'ouverture de session Windows"
+(clé `Run` HKCU, retirée à la désinstallation).
+
 ## Tests
 
 ```bash
