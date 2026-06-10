@@ -1,0 +1,52 @@
+name: Release Windows installer
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate tag matches project version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $version = python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])"
+          $expected = "v$version"
+          if ($env:GITHUB_REF_NAME -ne $expected) {
+            throw "Tag/version mismatch: got tag '$env:GITHUB_REF_NAME', expected '$expected' from pyproject.toml."
+          }
+          Write-Host "Tag/version check OK: $expected"
+
+      - name: Build executable and installer
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File packaging\build.ps1
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: packaging/output/*.exe
+          if-no-files-found: error
+
+      - name: Create GitHub release with installer
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packaging/output/*.exe
+          generate_release_notes: true
